@@ -52,7 +52,7 @@ Resources:
           Value: MinticPublicSubnet1
 
   # Subred pública en la zona us-east-1b
-  MinticPublicSubnet3:
+  MinticPublicSubnet2:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId: !Ref MinticVPC
@@ -61,7 +61,7 @@ Resources:
       MapPublicIpOnLaunch: true
       Tags:
         - Key: Name
-          Value: MinticPublicSubnet3
+          Value: MinticPublicSubnet2
 
   # Tabla de rutas para las subredes públicas
   MinticRouteTable:
@@ -89,7 +89,7 @@ Resources:
   MinticSubnetRouteTableAssociation2:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      SubnetId: !Ref MinticPublicSubnet3
+      SubnetId: !Ref MinticPublicSubnet2
       RouteTableId: !Ref MinticRouteTable
 
   # Grupo de seguridad que permite tráfico HTTP y SSH desde cualquier lugar
@@ -113,7 +113,7 @@ Resources:
     Type: AWS::EC2::Instance
     Properties:
       ImageId: !Ref MinticAmiId
-      InstanceType: t3.micro
+      InstanceType: t2.micro
       KeyName: !Ref MinticKeyName
       NetworkInterfaces:
         - AssociatePublicIpAddress: true
@@ -135,11 +135,11 @@ Resources:
     Type: AWS::EC2::Instance
     Properties:
       ImageId: !Ref MinticAmiId
-      InstanceType: t3.micro
+      InstanceType: t2.micro
       KeyName: !Ref MinticKeyName
       NetworkInterfaces:
         - AssociatePublicIpAddress: true
-          SubnetId: !Ref MinticPublicSubnet3
+          SubnetId: !Ref MinticPublicSubnet2
           DeviceIndex: 0
           GroupSet:
             - !Ref MinticSecurityGroup
@@ -159,13 +159,9 @@ Resources:
       Name: MinticALB
       Subnets:
         - !Ref MinticPublicSubnet1
-        - !Ref MinticPublicSubnet3
-      LaunchTemplateData:
-        ImageId: !Ref MinticAmiId
-        InstanceType: t3.micro
-        KeyName: !Ref MinticKeyName
-        SecurityGroupIds:
-          - !Ref MinticSecurityGroup
+        - !Ref MinticPublicSubnet2
+      SecurityGroups:
+        - !Ref MinticSecurityGroup
       Scheme: internet-facing
       Type: application
 
@@ -196,7 +192,7 @@ Resources:
     Properties:
       LaunchTemplateData:
         ImageId: !Ref MinticAmiId
-        InstanceType: t3.micro
+        InstanceType: t2.micro
         KeyName: !Ref MinticKeyName
         SecurityGroupIds:
           - !Ref MinticSecurityGroup
@@ -215,7 +211,7 @@ Resources:
     Properties:
       VPCZoneIdentifier:
         - !Ref MinticPublicSubnet1
-        - !Ref MinticPublicSubnet3
+        - !Ref MinticPublicSubnet2
       LaunchTemplate:
         LaunchTemplateId: !Ref MinticLaunchTemplate
         Version: !GetAtt MinticLaunchTemplate.LatestVersionNumber
@@ -247,7 +243,7 @@ Resources:
     Properties:
       AutoScalingGroupName: !Ref MinticASG
       PoolState: Stopped  # Las instancias estarán en estado detenido
-      MinSize: 0         # Mantiene 2 instancias en el warm pool
+      MinSize: 2          # Mantiene 2 instancias en el warm pool
 
 Outputs:
   # ID de la VPC creada
