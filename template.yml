@@ -160,8 +160,12 @@ Resources:
       Subnets:
         - !Ref MinticPublicSubnet1
         - !Ref MinticPublicSubnet3
-      SecurityGroups:
-        - !Ref MinticSecurityGroup
+      LaunchTemplateData:
+        ImageId: !Ref MinticAmiId
+        InstanceType: t3.micro
+        KeyName: !Ref MinticKeyName
+        SecurityGroupIds:
+          - !Ref MinticSecurityGroup
       Scheme: internet-facing
       Type: application
 
@@ -243,7 +247,7 @@ Resources:
     Properties:
       AutoScalingGroupName: !Ref MinticASG
       PoolState: Stopped  # Las instancias estarán en estado detenido
-      MinSize: 2          # Mantiene 2 instancias en el warm pool
+      MinSize: 0         # Mantiene 2 instancias en el warm pool
 
 Outputs:
   # ID de la VPC creada
