@@ -242,7 +242,7 @@ Resources:
     Type: AWS::AutoScaling::WarmPool
     Properties:
       AutoScalingGroupName: !Ref MinticASG
-      PoolState: Stopped  # Las instancias estarán en estado detenido
+      PoolState: running  # Las instancias estarán en estado detenido
       MinSize: 2          # Mantiene 2 instancias en el warm pool
 
 Outputs:
