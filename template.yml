@@ -116,9 +116,9 @@ Resources:
     InstanceType: t2.micro
     KeyName: !Ref MinticKeyName
     NetworkInterfaces:
-      - AssociatePublicIpAddress: true
+      - DeviceIndex: 0
+        AssociatePublicIpAddress: true
         SubnetId: !Ref MinticPublicSubnet1
-        DeviceIndex: 0
         GroupSet:
           - !Ref MinticSecurityGroup
     UserData:
@@ -129,6 +129,7 @@ Resources:
         systemctl start httpd
         systemctl enable httpd
         echo "<html><body><h1>Hola desde EC2 AZ1 - IP: $(hostname -f)</h1></body></html>" > /var/www/html/index.html
+
 
 
   # Instancia EC2 estática en AZ2 con UserData
