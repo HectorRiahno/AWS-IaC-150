@@ -116,11 +116,11 @@ Resources:
       InstanceType: t2.micro
       KeyName: !Ref MinticKeyName
       NetworkInterfaces:
-        - AssociatePublicIpAddress: true
-          SubnetId: !Ref MinticPublicSubnet1
-          DeviceIndex: 0
-          GroupSet:
-            - !Ref MinticSecurityGroup
+        - DeviceIndex: 0
+          AssociatePublicIpAddress: true
+          Groups:
+        - !Ref MinticSecurityGroup
+
       UserData:
         Fn::Base64: !Sub |
           #!/bin/bash
@@ -226,7 +226,10 @@ Resources:
     Type: AWS::AutoScaling::ScheduledAction
     Properties:
       AutoScalingGroupName: !Ref MinticASG
-      DesiredCapacity: 0
+      MinSize: 0
+      MaxSize: 4
+      DesiredCapacity: 4
+
       Recurrence: "0 13 * * *"   # 8:00 AM Colombia
 
   # Enciende todas las instancias del ASG a las 8:15 AM hora Colombia (13:15 UTC)
@@ -238,6 +241,12 @@ Resources:
       Recurrence: "15 13 * * *"  # 8:15 AM Colombia
 
   # Warm pool para mantener 2 instancias "listas" pero detenidas
+  MinticWarmPool:
+    Type: AWS::AutoScaling::WarmPool
+    Properties:
+      AutoScalingGroupName: !Ref MinticASG
+      PoolState: Stopped  # Las instancias estarán en estado detenido
+      MinSize: 2          # Mantiene 2 instancias en el warm pool
 
 Outputs:
   # ID de la VPC creada
