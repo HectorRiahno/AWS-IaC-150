@@ -110,25 +110,26 @@ Resources:
 
   # Instancia EC2 estática en AZ1 con UserData
   MinticEC2AZ1:
-    Type: AWS::EC2::Instance
-    Properties:
-      ImageId: !Ref MinticAmiId
-      InstanceType: t2.micro
-      KeyName: !Ref MinticKeyName
-      NetworkInterfaces:
-        - DeviceIndex: 0
-          AssociatePublicIpAddress: true
-          Groups:
-        - !Ref MinticSecurityGroup
+  Type: AWS::EC2::Instance
+  Properties:
+    ImageId: !Ref MinticAmiId
+    InstanceType: t2.micro
+    KeyName: !Ref MinticKeyName
+    NetworkInterfaces:
+      - AssociatePublicIpAddress: true
+        SubnetId: !Ref MinticPublicSubnet1
+        DeviceIndex: 0
+        GroupSet:
+          - !Ref MinticSecurityGroup
+    UserData:
+      Fn::Base64: !Sub |
+        #!/bin/bash
+        yum update -y
+        yum install -y httpd
+        systemctl start httpd
+        systemctl enable httpd
+        echo "<html><body><h1>Hola desde EC2 AZ1 - IP: $(hostname -f)</h1></body></html>" > /var/www/html/index.html
 
-      UserData:
-        Fn::Base64: !Sub |
-          #!/bin/bash
-          yum update -y
-          yum install -y httpd
-          systemctl start httpd
-          systemctl enable httpd
-          echo "<html><body><h1>Hola desde EC2 AZ1 - IP: $(hostname -f)</h1></body></html>" > /var/www/html/index.html
 
   # Instancia EC2 estática en AZ2 con UserData
   MinticEC2AZ2:
