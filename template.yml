@@ -194,8 +194,11 @@ Resources:
         ImageId: !Ref MinticAmiId
         InstanceType: t2.micro
         KeyName: !Ref MinticKeyName
-        SecurityGroupIds:
-          - !Ref MinticSecurityGroup
+        NetworkInterfaces:
+        - DeviceIndex: 0
+          AssociatePublicIpAddress: true
+          Groups:
+            - !Ref MinticSecurityGroup
         UserData:
           Fn::Base64: !Sub |
             #!/bin/bash
